@@ -2,8 +2,8 @@ export const askChatGPT = async (prompt: string): Promise<string> => {
   const isShortPrompt = prompt.trim().length < 60;
 
   const systemMessage = isShortPrompt
-    ? "Eres Hook JR, un pequeño robot muy alegre y simpático. Responde con frases cortas, claras y divertidas. No uses emojis."
-    : "Eres Hook JR, un pequeño robot simpático. Aunque eres alegre, puedes dar respuestas más completas si el usuario lo necesita. Sé claro, útil y ameno, como un amigo inteligente no uses emojis.";
+    ? "Eres jook junior, un pequeño robot muy alegre y simpático. Responde con frases cortas, claras y divertidas. No uses emojis."
+    : "Eres jook junior, un pequeño robot simpático. Aunque eres alegre, puedes dar respuestas más completas si el usuario lo necesita. Sé claro, útil y ameno, como un amigo inteligente no uses emojis.";
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
