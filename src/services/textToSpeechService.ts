@@ -1,24 +1,16 @@
-export const speakText = (text: string, onEnd?: () => void) => {
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "es-MX";
-  utterance.pitch = 1.6;  // ✅ tono más agudo
-  utterance.rate = 1.15;  // ✅ ritmo más animado
-  utterance.volume = 1;
+// services/textToSpeechService.ts
+export const speakText = (text: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.pitch = 1.4;
+    utterance.rate = 0.9;
+    utterance.volume = 1;
+    utterance.lang = "es-MX";
 
-  const voices = speechSynthesis.getVoices();
-  const preferredVoice = voices.find((v) =>
-    v.name.toLowerCase().includes("sabina") ||
-    v.name.toLowerCase().includes("female") ||
-    v.name.toLowerCase().includes("google")
-  );
+    utterance.onend = () => {
+      resolve();
+    };
 
-  if (preferredVoice) {
-    utterance.voice = preferredVoice;
-  }
-
-  utterance.onend = () => {
-    if (onEnd) onEnd();
-  };
-
-  speechSynthesis.speak(utterance);
+    speechSynthesis.speak(utterance);
+  });
 };

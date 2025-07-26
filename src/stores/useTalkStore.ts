@@ -85,11 +85,13 @@ export const useTalkStore = create<TalkStore>((set, get) => ({
 },
 
   // Fase 4: Respuesta hablada
-  speakResponse: (text: string) => {
+  speakResponse: async (text: string) => {
   console.log("🗣️ Leyendo en voz alta:", text);
   const cleanedText = sanitizeForSpeech(text);
   set({ isSpeaking: true });
-  speakText(cleanedText); 
+
+  await speakText(cleanedText);
+
   set({ isSpeaking: false });
 },
 
