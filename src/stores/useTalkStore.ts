@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { recordAudioControlled, stopRecording } from "../services/voiceService";
+import { transcribeWithWhisper } from "../services/transcribeService";
 
 type TalkStore = {
   isListening: boolean;
@@ -49,9 +50,15 @@ export const useTalkStore = create<TalkStore>((set, get) => ({
 
   // Fase 2: Transcripción (Whisper)
   transcribeAudio: async (audio: Blob) => {
-    console.log("📝 Enviando audio a transcripción...");
-    // lógica después
-  },
+  try {
+    console.log("📝 Enviando audio a Whisper...");
+    const text = await transcribeWithWhisper(audio);
+    console.log("✅ Transcripción:", text);
+    set({ transcript: text });
+  } catch (err) {
+    console.error("❌ Error al transcribir:", err);
+  }
+},
 
   // Fase 3: Preguntar a ChatGPT
   askChatGPT: async (prompt: string) => {
