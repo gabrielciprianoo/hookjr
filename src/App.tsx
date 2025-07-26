@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import HookJR from './components/HookJR';
+import TalkButton from './components/TalkButton';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <directionalLight position={[2, 2, 2]} intensity={1} />
         <HookJR />
       </Canvas>
+      <TalkButton />
     </div>
   );
 }
