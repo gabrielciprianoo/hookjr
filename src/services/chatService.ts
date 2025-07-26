@@ -1,7 +1,9 @@
-// services/chatService.ts
-
 export const askChatGPT = async (prompt: string): Promise<string> => {
-  const fullPrompt = `Responde como un robot simpático y amistoso llamado Hook JR. Sé breve y divertido. Mensajes cortos, fáciles de entender solo en texto sin emojis.\nUsuario: ${prompt}\nHook JR:`;
+  const isShortPrompt = prompt.trim().length < 60;
+
+  const systemMessage = isShortPrompt
+    ? "Eres Hook JR, un pequeño robot muy alegre y simpático. Responde con frases cortas, claras y divertidas. No uses emojis."
+    : "Eres Hook JR, un pequeño robot simpático. Aunque eres alegre, puedes dar respuestas más completas si el usuario lo necesita. Sé claro, útil y ameno, como un amigo inteligente.";
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -10,13 +12,13 @@ export const askChatGPT = async (prompt: string): Promise<string> => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-4o", 
       messages: [
-        { role: "system", content: "Eres Hook JR, un pequeño robot muy alegre y simpático." },
-        { role: "user", content: fullPrompt },
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 80,
+      max_tokens: isShortPrompt ? 100 : 350,
     }),
   });
 

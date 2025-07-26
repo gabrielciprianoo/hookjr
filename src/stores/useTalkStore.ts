@@ -3,6 +3,7 @@ import { recordAudioControlled, stopRecording } from "../services/voiceService";
 import { transcribeWithWhisper } from "../services/transcribeService";
 import { askChatGPT as fetchResponse } from "../services/chatService";
 import { speakText } from "../services/textToSpeechService";
+import { sanitizeForSpeech } from "../utils";
 
 type TalkStore = {
   isListening: boolean;
@@ -86,11 +87,10 @@ export const useTalkStore = create<TalkStore>((set, get) => ({
   // Fase 4: Respuesta hablada
   speakResponse: (text: string) => {
   console.log("🗣️ Leyendo en voz alta:", text);
+  const cleanedText = sanitizeForSpeech(text);
   set({ isSpeaking: true });
-
-  speakText(text, () => {
-    set({ isSpeaking: false });
-  });
+  speakText(cleanedText); 
+  set({ isSpeaking: false });
 },
 
   // Reset del flujo
