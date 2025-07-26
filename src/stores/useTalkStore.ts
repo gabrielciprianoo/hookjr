@@ -1,5 +1,5 @@
-
 import { create } from "zustand";
+import { recordAudioControlled, stopRecording } from "../services/voiceService";
 
 type TalkStore = {
   isListening: boolean;
@@ -8,7 +8,7 @@ type TalkStore = {
   transcript: string;
   response: string;
 
-  startListening: () => void;
+  startListening: () => Promise<void>;
   stopListening: () => void;
   transcribeAudio: (audio: Blob) => Promise<void>;
   askChatGPT: (prompt: string) => Promise<void>;
@@ -17,7 +17,7 @@ type TalkStore = {
   reset: () => void;
 };
 
-export const useTalkStore = create<TalkStore>((set) => ({
+export const useTalkStore = create<TalkStore>((set, get) => ({
   isListening: false,
   isThinking: false,
   isSpeaking: false,
@@ -25,16 +25,26 @@ export const useTalkStore = create<TalkStore>((set) => ({
   response: "",
 
   // Fase 1: Grabación
-  startListening: () => {
+  startListening: async () => {
     console.log("🎙️ Iniciando grabación...");
-    set({ isListening: true });
-    // lógica después
+    set({ isListening: true, transcript: "", response: "" });
+
+    try {
+      const audioBlob = await recordAudioControlled();
+      set({ isListening: false });
+      console.log("📤 Audio capturado, enviando a Whisper...");
+
+      await get().transcribeAudio(audioBlob);
+    } catch (err) {
+      console.error("❌ Error en grabación:", err);
+      set({ isListening: false });
+    }
   },
 
   stopListening: () => {
-    console.log("⏹️ Deteniendo grabación...");
+    console.log("⏹️ Deteniendo grabación manualmente...");
+    stopRecording();
     set({ isListening: false });
-    // lógica después
   },
 
   // Fase 2: Transcripción (Whisper)
