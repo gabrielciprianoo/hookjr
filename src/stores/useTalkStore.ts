@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { recordAudioControlled, stopRecording } from "../services/voiceService";
 import { transcribeWithWhisper } from "../services/transcribeService";
+import { askChatGPT as fetchResponse } from "../services/chatService";
 
 type TalkStore = {
   isListening: boolean;
@@ -55,6 +56,9 @@ export const useTalkStore = create<TalkStore>((set, get) => ({
     const text = await transcribeWithWhisper(audio);
     console.log("✅ Transcripción:", text);
     set({ transcript: text });
+
+    // 👉 Aquí se lanza la siguiente fase automáticamente
+    await get().askChatGPT(text);
   } catch (err) {
     console.error("❌ Error al transcribir:", err);
   }
@@ -62,11 +66,21 @@ export const useTalkStore = create<TalkStore>((set, get) => ({
 
   // Fase 3: Preguntar a ChatGPT
   askChatGPT: async (prompt: string) => {
-    console.log("🤖 Enviando a ChatGPT:", prompt);
-    set({ isThinking: true });
-    // lógica después
+  console.log("🤖 Enviando a ChatGPT:", prompt);
+  set({ isThinking: true });
+
+  try {
+    const answer = await fetchResponse(prompt);
+    console.log("✅ Respuesta:", answer);
+    set({ response: answer });
+    get().speakResponse(answer);
+  } catch (err) {
+    console.error("❌ Error en ChatGPT:", err);
+    set({ response: "Lo siento, no entendí bien." });
+  } finally {
     set({ isThinking: false });
-  },
+  }
+},
 
   // Fase 4: Respuesta hablada
   speakResponse: (text: string) => {
